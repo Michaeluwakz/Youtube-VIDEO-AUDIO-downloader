@@ -1,103 +1,118 @@
-import Image from "next/image";
+'use client';
+
+import { useVideoStore } from '@/store/useVideoStore';
+import Hero from '@/components/Hero';
+import URLInput from '@/components/URLInput';
+import VideoCard from '@/components/VideoCard';
+import FormatSelector from '@/components/FormatSelector';
+import DownloadHistory from '@/components/DownloadHistory';
+import DiagnosticPanel from '@/components/DiagnosticPanel';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { currentVideo } = useVideoStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-neutral-50 via-blue-50 to-neutral-100 dark:from-neutral-950 dark:via-blue-950 dark:to-neutral-900">
+      <div className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        {!currentVideo && <Hero />}
+
+        {/* URL Input */}
+        <div className={currentVideo ? 'mb-8' : ''}>
+          <URLInput />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Video Info & Download Options */}
+        <AnimatePresence mode="wait">
+          {currentVideo && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-8"
+            >
+              <VideoCard videoInfo={currentVideo} />
+              
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
+                  Choose Download Format
+                </h2>
+                <p className="text-neutral-600 dark:text-neutral-400">
+                  Select your preferred quality and format
+                </p>
+              </div>
+
+              <FormatSelector
+                formats={currentVideo.availableFormats}
+                videoId={currentVideo.id}
+                videoTitle={currentVideo.title}
+                thumbnail={currentVideo.thumbnail}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* How to Use Section */}
+        {!currentVideo && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="max-w-3xl mx-auto mt-16"
+          >
+            <h2 className="text-2xl font-bold text-center text-neutral-900 dark:text-white mb-8">
+              How It Works
+            </h2>
+            
+            <div className="space-y-4">
+              {[
+                { step: '1', title: 'Copy YouTube URL', desc: 'Copy the link of the video you want to download' },
+                { step: '2', title: 'Paste & Analyze', desc: 'Paste the URL in the input field above' },
+                { step: '3', title: 'Choose Format', desc: 'Select your preferred quality and format' },
+                { step: '4', title: 'Download', desc: 'Click download and save to your device' }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.step}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.9 + index * 0.1 }}
+                  className="flex items-start gap-4 bg-white dark:bg-neutral-800 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {item.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Download History */}
+      <DownloadHistory />
+
+      {/* Diagnostic Panel */}
+      <DiagnosticPanel />
+
+      {/* Footer */}
+      <footer className="mt-20 py-8 border-t border-neutral-200 dark:border-neutral-800 text-center text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mb-2">
+          TubeGrab Pro - Educational Purpose Only
+        </p>
+        <p>
+          Made with ❤️ for learning purposes
+        </p>
       </footer>
-    </div>
+    </main>
   );
 }
